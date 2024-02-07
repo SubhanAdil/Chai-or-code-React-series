@@ -1,0 +1,111 @@
+import { useState,useRef,useCallback,useEffect } from 'react'
+
+//REACT DEV
+
+
+function App() {
+
+  
+let [length,setlength] =useState('8');
+const [numberAllowed,setNumberAllowed] =useState(false)
+const [charAllowed,setCharAllowed] =useState(false)
+const [password,setPassword] =useState("")// koi bhi api ya browser refresh krne pe password dega is lie empty chora wa
+
+// ye optimize kre ga agr dependency arry me kuch bhi change hua work hua
+const passwordGenerator =useCallback( 
+  ()=>{
+    let str = "ABCDEFGHIJKLMNOPKRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+    let pass=""
+    if (numberAllowed) {
+      str += "0123456789"
+    }
+    if (charAllowed) {
+      str += "@!&[]|\?&^$"
+    }
+   for (let i = 1; i <= length ; i++){
+
+    //making random num getting method
+    //abhi str ki index value get hoi hai
+    const char = Math.floor(Math.random() * str.length + 1)
+    //ab us index ki char ko use krne ke lie ye kro |
+     pass += str.charAt(char)
+   }
+  //ye ek trha se return kr ra sary work ko
+    setPassword(pass)
+  } 
+  ,[length,numberAllowed,charAllowed,setPassword ])
+
+//hook written same like callback hook /but ye direct  run kre ge agr dependency arry me kuch bhi change hua
+useEffect(()=>{  passwordGenerator()  }
+//length agr cheri tw work krjae ga charallowed chera tw bh passgen chera tw bh
+,[length,numberAllowed,charAllowed,passwordGenerator])
+
+
+  return (
+
+<div className="w-full max-w-md mx-auto shadow-md rounded-lg px-4 py-3 my-8 bg-gray-800 text-orange-500">
+       <h1 className='text-white text-center my-3'>Password generator</h1>
+       <div className="flex shadow rounded-lg overflow-hidden mb-4">
+         <input 
+         type='text'
+         placeholder='Password'
+         // USING REACT 
+          value={password}
+       
+         //ye is lie likha koi akr likh na pae kuch
+          readOnly
+         />
+         
+         <button className='outline-none bg-blue-700 text-white px-3 py-0.5 shrink-0'>copy</button>
+      
+       </div>
+
+  <div className='flex text-sm gap-x-2'>
+    
+        <div className='flex items-center gap-x-1'>
+        <input 
+        type='range'
+          // USING REACT 
+           min={6}
+           max={100}
+           value={length}
+           className='cursor-pointer'
+           //setlength usetate hai ab wo length ko update krdegi
+           //koibhfunpass  function is lie likha hai bcz whi usestate ko call krskta
+           onChange={ (koibhfunpass) =>{setlength(koibhfunpass.target.value)} }
+         />
+        <label>Length: {length}</label>
+       </div>
+
+       <div className="flex items-center gap-x-1">
+       <input type='checkbox'
+       //ye default pe tik nh lgae ga checkbox me
+       defaultChecked={numberAllowed}
+       //ewai
+       id='numberInput'
+       //IMPORTANT
+       //onchange me tw fun bny ge usestate use krne ke lie & usestate me bh fun bny ga purani value get krne ke lie
+       onChange={ ()=>setNumberAllowed( (prev) =>!prev )}
+       
+       />
+       <label htmlFor="numberInput">Numbers </label>
+       </div>
+
+       <div className="flex items-center gap-x-1">
+        <input type='checkbox'
+         defaultChecked={charAllowed}
+         //ewai
+         id='characterInput'
+         //IMPORTANT
+         //onchange me tw fun bny ge usestate use krne ke lie & usestate me bh fun bny ga purani value get krne ke lie
+         onChange={ ()=>setCharAllowed( (prev) =>!prev )}
+        
+        />
+        <label htmlFor="characterInput">Characters</label>
+       </div>
+  </div>
+</div>
+  )
+}
+
+export default App
